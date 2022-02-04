@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>Pedido Nuevo SuperMercado</title>
+		<link href="../estilos.css" rel="stylesheet">
+	</head>
+	<body>
+	<div class="divPadre">
+		<p th:text="${usuario.nickName}"/>
+		<a th:href="@{/cerrarSesion}"><button class="botonForm">Cerrar sesion</button></a>
+		<h1>Lista de productos</h1>
+		<form action="#" th:action="@{/login/select/NuevoP/submit}" 
+		method="post">
+			<br/>
+			<table>
+		    	<thead>
+		    		<tr>
+		    			<th>Producto</th>
+		    			<th>Precio</th>
+		    			<th>Cantidad</th>
+		    		</tr>
+		    	</thead>
+				<tbody>
+		    		<tr th:each="compra : ${productos}">
+		    			<td th:text="${compra.nombre}"/>
+		    			<td th:text="${compra.precio}"/>
+		    			<td><input type="number" name="cantidades" value=0 min="0"></td>
+		    		</tr>
+		    	</tbody>
+	    	</table>
+	    	<input type="submit" value="Enviar" class="botonForm">
+		</form>
+		</div>
+	</body>
+</html>
