@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>Resumen envio SuperMercado</title>
+		<link href="../estilos.css" rel="stylesheet">
+	</head>
+	<body>
+	<div class="divPadre">
+		<p th:text="${usuario.getNickName}"/>
+		<a th:href="@{/cerrarSesion}"><button class="botonForm">Cerrar sesion</button></a>
+		<h1>Resumen envio</h1>
+		<h2>Productos adquiridos</h2>
+		<table>
+	    	<thead>
+	    		<tr>
+	    			<th>Producto</th>
+	    			<th>Precio</th>
+	    			<th>Cantidad</th>
+	    			<th>Precio total</th>
+	    			
+	    		</tr>
+	    	</thead>
+			<tbody>
+	    		<tr th:each="datos : ${datosPedido}">
+	    			<td th:text="${datos.getKey.nombre}"/>
+	    			<td th:text="${datos.getKey.precio}"/>
+	    			<td th:text="${datos.getValue}"/>
+	    			<td th:text="${datos.getValue*datos.getKey.precio}"/>
+	    		</tr>
+	    	</tbody>
+    	</table>
+    	<h2>Direccion de envio</h2>
+    			<table>
+	    	<thead>
+	    		<tr>
+	    			<th>Direccion</th>
+	    			<th>Telefono</th>
+	    			<th>Fecha actual</th>
+	    			<th>Correo electronico</th>
+	    		</tr>
+	    	</thead>
+			<tbody>
+	    		<tr>
+	    			<td th:text="${direccionPedido.direccion}"/>
+	    			<td th:text="${direccionPedido.telefono}"/>
+	    			<td th:text="${direccionPedido.fechaPack}"/>
+	    			<td th:text="${direccionPedido.correoElectronico}"/>
+	    		</tr>
+	    	</tbody>
+    	</table>
+	
+		<a href="login/select"><button class="botonForm">Finalizar</button></a>
+		</div>
+	</body>
+</html>
