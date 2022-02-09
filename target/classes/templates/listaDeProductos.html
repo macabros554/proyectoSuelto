@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>Lista Pedidos SuperMercado</title>
+		<link href="../estilos.css" rel="stylesheet">
+	</head>
+	<body>
+	<div class="divPadre">
+		<p th:text="${usuario.getNickName}"/>
+		<a th:href="@{/cerrarSesion}"><button class="botonForm">Cerrar sesion</button></a>
+		
+			<h1>Lista de pedidos</h1>
+	    	<table>
+	    	<thead>
+	    		<tr>
+	    			<th>Fecha</th>
+	    			<th>Referencia</th>
+	    			<th>Direccion</th>
+	    			<th>Telefono</th>
+	    	</thead>
+			<tbody>
+	    		<tr th:each="compra : ${pedidos}">
+	    			<td th:text="${compra.fechaPack}"/>
+	    			<td th:text="${compra.idPedido}"/>
+	    			<td th:text="${compra.direccion}"/>	
+	    			<td th:text="${compra.telefono}"/>	
+	    			<td><a th:href="@{login/select/EditarProducto/{id}(id=${compra.idPedido})}"><button class="botonForm">Editar</button></a></td>
+	    				
+	    	</tbody>
+	    </table>
+		<a href="/login/select"><button class="botonForm">Volver</button></a>
+	</div>
+	</body>
+</html>

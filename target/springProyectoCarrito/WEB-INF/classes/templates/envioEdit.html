@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>Envio SuperMercado</title>
+		<link href="../estilos.css" rel="stylesheet">
+	</head>
+	<body>
+	<div class="divPadre">
+		<p th:text="${usuario.getNickName}"/>
+		<a href="/cerrarSesion"><button class="botonForm">Cerrar sesion</button></a>
+			<form action="#" th:action="@{/login/select/EditarProducto/EditarEnvio/submit}" method="post">
+			<h2>Productos adquiridos</h2>
+				<table>
+			    	<thead>
+			    		<tr>
+			    			<th>Producto</th>
+			    			<th>Precio</th>
+			    			<th>Cantidad</th>
+			    			<th>Precio Total</th>
+			    			
+			    		</tr>
+			    	</thead>
+					<tbody>
+			    		<tr th:each="datos : ${datosPedido}">
+			    			<td th:text="${datos.getKey.nombre}"/>
+			    			<td th:text="${datos.getKey.precio}"/>
+			    			<td th:text="${datos.getValue}"/>
+			    			<td th:text="${datos.getValue*datos.getKey.precio}"/>
+			    			
+			    		</tr>
+			    	</tbody>
+		    	</table>
+				<h2>Direccion de envio</h2>
+				<label for="login">Direccion:</label>
+				<input type="text" name="direccion" th:value="${usuario.getDireccion}">
+				<br/>
+				<label for="contra">Telefono:</label>
+				<input type="number" name="telefono" th:value="${usuario.getTelefono}"> 
+				<br>
+				<label for="contra">Correo electronico:</label>
+				<input type="text" name="email" th:value="${usuario.getCorreoElectronico}"> 
+				<br>
+				<input type="submit" value="Enviar" class="botonForm">
+			</form>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,8 @@
+com/example/demo/model/Pedidos.class
+com/example/demo/service/ProductoService.class
+com/example/demo/SpringProyectoCarritoApplication.class
+com/example/demo/service/UsuarioService.class
+com/example/demo/service/PedidosService.class
+com/example/demo/model/Productos.class
+com/example/demo/model/Usuario.class
+com/example/demo/controller/CarritoController.class
