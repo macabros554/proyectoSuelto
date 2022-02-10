@@ -3,11 +3,11 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Pedido Nuevo SuperMercado</title>
-		<link href="../estilos.css" rel="stylesheet">
+		<link href="/estilos.css" rel="stylesheet">
 	</head>
 	<body>
 	<div class="divPadre">
-		<p th:text="${usuario.getNickName}"/>
+		<p th:text="${usuario.nickName}"/>
 		<a th:href="@{/cerrarSesion}"><button class="botonForm">Cerrar sesion</button></a>
 		<h1>Lista de productos</h1>
 		<form action="#" th:action="@{/login/select/NuevoP/submit}" 
@@ -22,7 +22,7 @@
 		    		</tr>
 		    	</thead>
 				<tbody>
-		    		<tr th:each="compra : ${Productos}">
+		    		<tr th:each="compra : ${productos}">
 		    			<td th:text="${compra.nombre}"/>
 		    			<td th:text="${compra.precio}"/>
 		    			<td><input type="number" name="cantidades" value=0 min="0"></td>

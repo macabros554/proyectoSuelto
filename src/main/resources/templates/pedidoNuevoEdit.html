@@ -3,11 +3,11 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Pedido Nuevo SuperMercado</title>
-		<link href="../estilos.css" rel="stylesheet">
+		<link href="/estilos.css" rel="stylesheet">
 	</head>
 	<body>
 	<div class="divPadre">
-		<p th:text="${usuario.getNickName}"/>
+		<p th:text="${usuario.nickName}"/>
 		<a th:href="@{/cerrarSesion}"><button class="botonForm">Cerrar sesion</button></a>
 		<h1>Lista de productos</h1>
 		<form action="#" th:action="@{/login/select/EditarProducto/submit}" 
@@ -22,11 +22,16 @@
 		    		</tr>
 		    	</thead>
 				<tbody>
-		    		<tr th:each="productos : ${lista}">
-		    			<td th:text="${productos.key.nombre}"/>
-		    			<td th:text="${productos.key.precio}"/>
-		    			<td><input type="number" name="cantidades" th:value=${productos.value} min="0"></td>
+		    		<tr th:each="datos : ${lista}">
+		    			<td th:text="${datos.producto.nombre}"/>
+		    			<td th:text="${datos.producto.precio}"/>
+		    			<td><input type="number" name="cantidades" th:value=${datos.cantidad} min="0"></td>
 		    		</tr>
+		    		<!-- <tr th:each="datos : ${lista}">
+		    			<td th:text="${datos.nombre}"/>
+		    			<td th:text="${datos.precio}"/>
+		    			<td><input type="number" name="cantidades" value=0 min="0"></td>
+		    		</tr> -->
 		    	</tbody>
 	    	</table>
 	    	<input type="submit" value="Enviar" class="botonForm">

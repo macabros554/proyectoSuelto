@@ -3,11 +3,11 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Resumen envio SuperMercado</title>
-		<link href="../estilos.css" rel="stylesheet">
+		<link href="/estilos.css" rel="stylesheet">
 	</head>
 	<body>
 		<div class="divPadre">
-		<p th:text="${usuario.getNickName}"/>
+		<p th:text="${usuario.nickName}"/>
 		<a th:href="@{/cerrarSesion}"><button class="botonForm">Cerrar sesion</button></a>
 		<h1>Resumen envio</h1>
 		<h2>Productos adquiridos</h2>
@@ -22,11 +22,11 @@
 	    		</tr>
 	    	</thead>
 			<tbody>
-	    		<tr th:each="datos : ${datosPedido}">
-	    			<td th:text="${datos.getKey.nombre}"/>
-	    			<td th:text="${datos.getKey.precio}"/>
-	    			<td th:text="${datos.getValue}"/>
-	    			<td th:text="${datos.getValue*datos.getKey.precio}"/>
+	    		<tr th:each="datos : ${listaPedidos}">
+	    			<td th:text="${datos.producto.nombre}"/>
+	    			<td th:text="${datos.producto.precio}"/>
+	    			<td th:text="${datos.cantidad}"/>
+	    			<td th:text="${datos.producto.precio*datos.cantidad}"/>
 	    		</tr>
 	    	</tbody>
 	    		    	<tr>
@@ -35,9 +35,9 @@
 	    	</tr>
 	    	<tr>
 	    		<th>Precio total</th>
-	    		<td th:text="${precioFinal}"></td>
+	    		<td th:text="${total}"></td>
 	    		<th>Precio total mas IVA</th>
-	    		<td th:text="${precioFinalConIVA}"></td>
+	    		<td th:text="${total*1.12}"></td>
 	    	</tr>
     	</table>
     	<h2>Direccion de envio</h2>
@@ -52,10 +52,10 @@
 	    	</thead>
 			<tbody>
 	    		<tr>
-	    			<td th:text="${direccionPedido.direccion}"/>
-	    			<td th:text="${direccionPedido.telefono}"/>
-	    			<td th:text="${direccionPedido.fechaPack}"/>
-	    			<td th:text="${direccionPedido.correoElectronico}"/>
+	    			<td th:text="${direccion.direccion}"/>
+	    			<td th:text="${direccion.telefono}"/>
+	    			<td th:text="${direccion.fechaPack}"/>
+	    			<td th:text="${direccion.correoElectronico}"/>
 	    		</tr>
 
     	</table><br>
@@ -65,7 +65,7 @@
 		  <option value="certificado">Certificado</option>
 		</select><br><br>
 	
-		<a href="login/select"><button class="botonForm">Finalizar</button></a>
+		<a href="/login/select"><button class="botonForm">Finalizar</button></a>
 		</div>
 	</body>
 </html>

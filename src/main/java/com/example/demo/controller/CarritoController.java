@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,231 +16,266 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.demo.model.Pedidos;
-import com.example.demo.model.Productos;
 import com.example.demo.model.Usuario;
-import com.example.demo.service.PedidosService;
-import com.example.demo.service.ProductoService;
-import com.example.demo.service.UsuarioService;
+import com.example.demo.service.PedidoServiceDB;
+import com.example.demo.service.ProductoServiceDB;
+import com.example.demo.service.UsuarioServiceDB;
 
 @Controller
 public class CarritoController {
-
-	//creamos los autowired de los servicios porque los usaremos todos
-	
-	@Autowired
-	private UsuarioService servicioUsuario;
-	
-	@Autowired
-	private PedidosService servicioPedido;
 	
 	@Autowired
 	private HttpSession sesion;
 	
 	@Autowired
-	private ProductoService servicioProductos;
+	private UsuarioServiceDB servicioUsuario;
 	
+	@Autowired
+	private PedidoServiceDB servicioPedido;
+	
+	@Autowired
+	private ProductoServiceDB servicioProductos;
+	
+
 	
 	@GetMapping({"/","login"})
 	public String logearUsuario(Model model) {
-		//añadimos el model usuario para poder usarlo y recogerlo en el post
+		/*
+		 * creamos un usuario para pasárselo al html
+		 */
 		model.addAttribute("usuario", new Usuario());
-		return "/login";
+		return "login";
 	}
 	
-	@PostMapping("login/submit")
+	/*
+	 * recogemos el usuario
+	 * verificamos si existe
+	 * en el caso de que exista guardamos la key en sesion y pasamos a la siguiente pagina
+	 */
+	@PostMapping("/login/submit")
 	@RequestMapping (value="/login/submit", method=RequestMethod.POST)
-	public String logearUsuarioSubmit(@Validated @ModelAttribute("usuario") Usuario intentoDeLogin,BindingResult bindingResult ) {
-		//Con el ModelAttribute recogemos el usuario y lo comparamos con los existentes
-		//si existe te lleva al selector si no te devuelve al login
+	public String logearUsuarioSubmit(@Validated @ModelAttribute("usuario") Usuario intentoDeLogin ) {
+		
 		if (servicioUsuario.sacarUsuario(intentoDeLogin)==null) {
 			return "login";
-		} else {
-			//guardamos el usuario en la sesion
-			sesion.setAttribute("usuario1", servicioUsuario.sacarUsuario(intentoDeLogin));
+		}else {
 			return "redirect:/login/select";
 		}
 	}
 	
-	@GetMapping("login/select")
+	/*
+	 * Esta pagina es solo para elegir si crear un pedido o ver los existentes 
+	 * tambien le digo que busque el usuario en la base de datos para sacar el nombre del usuario y que aparezca en la pagina
+	 */
+	
+	@GetMapping("/login/select")
 	public String seleccionarAccion1(Model model) {
-		//Desde de aqui creo siempre el model ususario para mostrar siempre el usuario en todas las paginas
-		model.addAttribute("usuario", sesion.getAttribute("usuario1"));
-		return "/select";
+		model.addAttribute("usuario", servicioUsuario.datosUsuario((String)sesion.getAttribute("usuario1")));
+		return "select";
 	}
-
 	
-	@GetMapping("login/select/listaP")
+	/*
+	 * Aqui le paso la lista de pedidos del usuario para ver los pedidos que tiene
+	 * En el HTML tienes la opcion de ver los datos del pedido modificarlo o borrarlo
+	 */
+	
+	@GetMapping("/login/select/listaP")
 	public String listaDeProductos(Model model) {
-		model.addAttribute("usuario", sesion.getAttribute("usuario1"));
-		//Saco de la sesion del usuario sus pedidos para mostrarlos
-		model.addAttribute("pedidos",servicioPedido.sacarPedidos((Usuario) sesion.getAttribute("usuario1")));
-		return "/listaDeProductos";
+		model.addAttribute("usuario", servicioUsuario.datosUsuario((String)sesion.getAttribute("usuario1")));		
+		model.addAttribute("pedidos",servicioUsuario.listaPedidos(servicioUsuario.datosUsuario((String)sesion.getAttribute("usuario1"))));
+		return "listaDeProductos";
 	}
 	
-	@GetMapping("login/select/NuevoP")
+	/*
+	 * Pera hacer un nuevo pedido primero pasamos los productos para que elija 
+	 */
+	
+	@GetMapping("/login/select/NuevoP")
 	public String nuevoPedido(Model model) {
-		model.addAttribute("usuario", sesion.getAttribute("usuario1"));
-		//Saco todos los productos creados para posterior mente reutilizarlos para crear un mapa con la cantidad
-		model.addAttribute("Productos",servicioProductos.getListaProductos());
-		return "/pedidoNuevo";
+		model.addAttribute("usuario", servicioUsuario.datosUsuario((String)sesion.getAttribute("usuario1")));
+		model.addAttribute("productos",servicioProductos.listaProductos());
+		return "pedidoNuevo";
 	}
 	
-	@PostMapping("login/select/NuevoP/submit")
+	/*
+	 * Recuperamos las cantidades de cada productos
+	 * En el metodo se crea un producto, las lineas del pedido y las añade al pedido
+	 */
+	
+	@PostMapping("/login/select/NuevoP/submit")
 	public String nuevoPedidoSubmit(Model model, @RequestParam(name="cantidades") Integer[] nuevoProducto) {
-		//metemos las cantidades y productos en un mapa
-		this.servicioProductos.meterProducto(nuevoProducto);
-		this.servicioPedido.meterPedidos(nuevoProducto);
-		//confirmamos que no este vacio con una variable que tengo en servicio pedido
-		if(servicioPedido.getPrecioTotal()==0) {
+		if(servicioProductos.addProducto(nuevoProducto)==null) {
 			return "redirect:/login/select/NuevoP";
 		}else {
 			return "redirect:/login/select/NuevoP/envio";
 		}
-		
 	}
 	
-	@GetMapping("login/select/NuevoP/envio")
+	/*
+	 * sacamos la lista de pedidos del pedido que acabamos de hacer
+	 */
+	
+	@GetMapping("/login/select/NuevoP/envio")
 	public String envio(Model model) {
-		//creamos un pedido para usarlo en envio
-		model.addAttribute("direccion", new Pedidos());
-		model.addAttribute("usuario", sesion.getAttribute("usuario1"));
-		//sacamos las el mapa con productos y cantidades para verlo en el envio
-		model.addAttribute("datosPedido", this.servicioProductos.getListaCantidades());
+		model.addAttribute("usuario", servicioUsuario.datosUsuario((String)sesion.getAttribute("usuario1")));
+		model.addAttribute("listaPedidos",servicioPedido.ultimaListaPedido());
 		return "envio";
 	}
 	
-	@PostMapping("login/select/NuevoP/envio/submit")
-	public String nuevoEnvioSubmit(Model model, @ModelAttribute("direccion") Pedidos pedidoNuevo,
+	/*
+	 * recuperamos datos necesarios para rellenar ahora el pedido
+	 * sacamos el anterior pedido en otro pedio para rellenarlo
+	 * rellenamos los datos y para acabar actualizamos el pedido
+	 */
+	
+	@PostMapping("/login/select/NuevoP/envio/submit")
+	public String nuevoEnvioSubmit(Model model,
 			@RequestParam(name="direccion") String direccion,
 			@RequestParam(name="email") String email,
 			@RequestParam(name="telefono") String telefono
 			) {
-		//confirmamos que el usuario no a dejado nada en blanco
 		if(direccion=="" || telefono=="" || email=="") {
 			return "redirect:/login/select/NuevoP/envio";
 		}else {
-			//rellenamos pedidoNuevo con los datos que acabamos de recojer
-			pedidoNuevo.setCorreoElectronico(email);
-			pedidoNuevo.setDireccion(direccion);
-			pedidoNuevo.setTelefono(telefono);
-			//guardamos ep pedido dentro del usuario
-			servicioPedido.addPedido(pedidoNuevo,(Usuario) sesion.getAttribute("usuario1"));
+			Pedidos pedidoGuardado = servicioPedido.ultimoPedido();
+			pedidoGuardado.setCorreoElectronico(email);
+			pedidoGuardado.setDireccion(direccion);
+			pedidoGuardado.setTelefono(telefono);
+			servicioPedido.guardarPedido(pedidoGuardado);
 			return "redirect:/login/select/NuevoP/envio/resumen";
 		}
 	}
 	
-	@GetMapping("login/select/NuevoP/envio/resumen")
+	/*
+	 * mostramos todos lo datos del pedido: las lineas de pedido, el pedido y los calculos
+	 * para finalizar le guardamos el pedido al usuario
+	 */
+	
+	@GetMapping("/login/select/NuevoP/envio/resumen")
 	public String resumen(Model model) {
-		//mostramos todos los datos que ha rellenado y cuanto cuesta en total lo que a comprado
-		model.addAttribute("usuario", sesion.getAttribute("usuario1"));
-		model.addAttribute("datosPedido", this.servicioProductos.getListaCantidades());
-		model.addAttribute("direccionPedido", servicioPedido.mostrarUltimoPedido());	
-		model.addAttribute("precioFinal", servicioPedido.getPrecioTotal());
-		model.addAttribute("precioFinalConIVA", servicioPedido.getPrecioTotaliva());
-		return "/resumenEnvio";
+		model.addAttribute("usuario", servicioUsuario.datosUsuario((String)sesion.getAttribute("usuario1")));
+		model.addAttribute("listaPedidos",servicioPedido.ultimaListaPedido());
+		model.addAttribute("direccion", servicioPedido.ultimoPedido());
+		model.addAttribute("total", servicioProductos.suma());
+		servicioUsuario.guardarPedidoEnUsuario();
+		return "resumenEnvio";
 	}
 	
+	/*
+	 * Para editar el pedi do necesitamos la id del pedido que la recuperamos por Path
+	 * Le pasamos las lineas del pedido para que aparezcan las cantidades que tenia
+	 * Hacemos una comprobacion para ver si existe el pedido
+	 */
 	
-	@GetMapping("login/select/EditarProducto/{id}")
-	public String editarPedido(@PathVariable Integer id, Model model) {
-		model.addAttribute("usuario", sesion.getAttribute("usuario1"));
-		//creamos un pedido para guardar el pedido a modificar del usuario
-		Pedidos pedidoResguardo= servicioUsuario.sacarPedido((Usuario) sesion.getAttribute("usuario1"), id);
-		//confirmamos que no a pasado una id nula
-		if(pedidoResguardo!=null) {
-			//guardamos la id del pedido en el usuario
-			servicioUsuario.setId(id);
-			model.addAttribute("lista",pedidoResguardo.getProductosLista());
-			return "/pedidoNuevoEdit";
+	@GetMapping("/login/select/EditarProducto/{id}")
+	public String editarPedido(@PathVariable Long id, Model model) {
+		model.addAttribute("usuario", servicioUsuario.datosUsuario((String)sesion.getAttribute("usuario1")));
+		model.addAttribute("lista",servicioPedido.ultimaListaPedido());
+		if (servicioPedido.sacarPedido(id)==null) {
+			return "redirect:/login/select/listaP";
 		}else {
-			return "redirect:/login/select/NuevoP";
+			sesion.setAttribute("IdUltimoPedido", id);
+			return "pedidoNuevoEdit";
 		}
 	}
 	
-	@PostMapping("login/select/EditarProducto/submit")
+	/*
+	 * Recuperamos las cantidades de cada producto y a la vez que se sobre escribe comprobamos si todas las cantidades son mayores a 0
+	 * En caso de que todo sea 0 lo devolvemos a la pagina
+	 */
+	
+	@PostMapping("/login/select/EditarProducto/submit")
 	public String editarPedidoSubmit(@RequestParam(name="cantidades") Integer[] nuevoProducto) {
-		//creamos la lista de productos en los servicios pedidos y productos
-		this.servicioProductos.meterProducto(nuevoProducto);
-		this.servicioPedido.meterPedidos(nuevoProducto);
-		if(servicioPedido.getPrecioTotal()==0) {
-			return "redirect:/login/select/EditarProducto/"+servicioUsuario.getId();
+		if(servicioPedido.editPedido(nuevoProducto)==null) {
+			return "redirect:/login/select/EditarProducto/"+sesion.getAttribute("IdUltimoPedido");
 		}else {
 			return "redirect:/login/select/EditarProducto/EditarEnvio";
 		}
 	}
 	
-	@GetMapping("login/select/EditarProducto/EditarEnvio")
+	/*
+	 * Le pasamos la lista de lineas de pedido para mostrar los pedidos y las cantidades
+	 */
+	
+	@GetMapping("/login/select/EditarProducto/EditarEnvio")
 	public String editarEnvio(Model model) {
-		model.addAttribute("usuario", sesion.getAttribute("usuario1"));
-		model.addAttribute("datosPedido", servicioProductos.getListaCantidades());
-		return "/envioEdit";
+		model.addAttribute("usuario", servicioUsuario.datosUsuario((String)sesion.getAttribute("usuario1")));
+		model.addAttribute("listaPedidos", servicioPedido.ultimaListaPedido());
+		return "envioEdit";
 	}
 	
-	@PostMapping("login/select/EditarProducto/EditarEnvio/submit")
-	public String editarEnvioSubmit(Model model, @ModelAttribute("nuevaDireccion") Pedidos pedidoNuevo,
+	/*
+	 * recuperamos datos necesarios para rellenar ahora el pedido
+	 * sacamos el anterior pedido en otro pedio para rellenarlo
+	 * rellenamos los datos y para acabar actualizamos el pedido
+	 */
+	
+	@PostMapping("/login/select/EditarProducto/EditarEnvio/submit")
+	public String editarEnvioSubmit(Model model, @ModelAttribute("nuevaDireccion")
 			@RequestParam(name="direccion") String direccion,
 			@RequestParam(name="email") String email,
 			@RequestParam(name="telefono") String telefono
 			) {
 		if(direccion=="" || telefono=="" || email=="") {
-			return "redirect:login/select/NuevoP/envio";
+			return "redirect:/login/select/EditarProducto/EditarEnvio";
 		}else {
-			//actualizamos el pedido que tenemos guardado en el servicio
-			servicioPedido.setUltimoPedido(pedidoNuevo);
-			pedidoNuevo.setCorreoElectronico(email);
-			pedidoNuevo.setDireccion(direccion);
-			pedidoNuevo.setTelefono(telefono);
-			//guardamos ep pedido dentro del usuario
-			servicioPedido.editarPedido(pedidoNuevo,(Usuario) sesion.getAttribute("usuario1"));
+			Pedidos pedidoGuardado = servicioPedido.ultimoPedido();
+			pedidoGuardado.setCorreoElectronico(email);
+			pedidoGuardado.setDireccion(direccion);
+			pedidoGuardado.setTelefono(telefono);
+			servicioPedido.guardarPedido(pedidoGuardado);
 			return "redirect:/login/select/NuevoP/envio/resumenEditado";
 		}
 	}
 	
-	@GetMapping("login/select/NuevoP/envio/resumenEditado")
+	/*
+	 * mostramos todos lo datos del pedido: las lineas de pedido, el pedido y los calculos
+	 * para finalizar le guardamos el pedido al usuario
+	 */
+	
+	@GetMapping("/login/select/NuevoP/envio/resumenEditado")
 	public String resumenEdit(Model model) {
-		model.addAttribute("usuario", sesion.getAttribute("usuario1"));
-		model.addAttribute("datosPedido", this.servicioProductos.getListaCantidades());
-		model.addAttribute("direccionPedido", servicioPedido.mostrarUltimoPedido());	
-		model.addAttribute("precioFinal", servicioPedido.getPrecioTotal());
-		model.addAttribute("precioFinalConIVA", servicioPedido.getPrecioTotaliva());
-		return "/resumenEnvio";
+		model.addAttribute("usuario", servicioUsuario.datosUsuario((String)sesion.getAttribute("usuario1")));
+		model.addAttribute("listaPedidos",servicioPedido.ultimaListaPedido());
+		model.addAttribute("direccion", servicioPedido.ultimoPedido());
+		model.addAttribute("total", servicioProductos.suma());
+		return "resumenEnvio";
 	}
 	
-	@GetMapping("cerrarSesion")
+	/*
+	 * Para borrar e pedido recojemos la id y va al metodo de borrar que borra el pedido del usuario, las lineas del pedido y finalmente el pedido
+	 */
+	
+	@PostMapping("/login/select/listaP/borrar/{id}")
+	public String borrarProducto(@PathVariable Long id, Model model) {
+		servicioPedido.borrarPedido(id, (String) sesion.getAttribute("usuario1"));
+		return "redirect:/login/select/listaP";
+	}
+	
+	/*
+	 * Como vamos a mostrar los datos del pedido lo que hacemos es sacar los datos del pedido que nos pasen por la id
+	 */
+	
+	@GetMapping("/login/select/listaP/datos/{id}")
+	public String datosPedido(Model model,@PathVariable Long id) {
+		model.addAttribute("usuario", servicioUsuario.datosUsuario((String)sesion.getAttribute("usuario1")));
+		model.addAttribute("listaPedidos",servicioPedido.sacarListaPedido(id));
+		model.addAttribute("direccion", servicioPedido.sacarPedido(id));
+		model.addAttribute("total", servicioProductos.sumaConcreta(id));
+		return "datosPedido";
+	}
+	
+	/*
+	 * para cerrar la sesion la invalidamos y lo devolvemos al login
+	 */
+	
+	@GetMapping("/cerrarSesion")
 	public String cerrarSesion() {
 		sesion.invalidate();
 		return "redirect:/login";
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	
 	
 	

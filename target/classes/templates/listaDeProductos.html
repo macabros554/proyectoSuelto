@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Lista Pedidos SuperMercado</title>
-		<link href="../estilos.css" rel="stylesheet">
+		<link href="/estilos.css" rel="stylesheet">
 	</head>
 	<body>
 	<div class="divPadre">
@@ -22,14 +22,17 @@
 			<tbody>
 	    		<tr th:each="compra : ${pedidos}">
 	    			<td th:text="${compra.fechaPack}"/>
-	    			<td th:text="${compra.idPedido}"/>
+	    			<td th:text="${compra.id}"/>
 	    			<td th:text="${compra.direccion}"/>	
 	    			<td th:text="${compra.telefono}"/>	
-	    			<td><a th:href="@{login/select/EditarProducto/{id}(id=${compra.idPedido})}"><button class="botonForm">Editar</button></a></td>
-	    				
+	    			<td><a th:href="@{/login/select/listaP/datos/{id}(id=${compra.id})}"><button class="botonForm">Datos</button></a></td>
+	    			<td><a th:href="@{/login/select/EditarProducto/{id}(id=${compra.id})}"><button class="botonForm">Editar</button></a></td>
+	    			<td><form action="#" th:action="@{/login/select/listaP/borrar/{id}(id=${compra.id})}" method="post">
+	    			<input type="submit" value="Borrar" class="botonForm">
+	    			</form></td>
 	    	</tbody>
 	    </table>
-		<a href="/login/select"><button class="botonForm">Volver</button></a>
+		<a th:href="@{/login/select}"><button class="botonForm">Volver</button></a>
 	</div>
 	</body>
 </html>
