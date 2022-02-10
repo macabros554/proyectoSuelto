@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>Datos pedido</title>
+		<link href="/estilos.css" rel="stylesheet">
+	</head>
+	<body>
+	<div class="divPadre">
+		<p th:text="${usuario.nickName}"/>
+		<a th:href="@{/cerrarSesion}"><button class="botonForm">Cerrar sesion</button></a>
+		
+			<h1>Datos del pedido</h1>
+		<table>
+	    	<thead>
+	    		<tr>
+	    			<th>Producto</th>
+	    			<th>Precio</th>
+	    			<th>Cantidad</th>
+	    			<th>Precio total</th>
+	    			
+	    		</tr>
+	    	</thead>
+			<tbody>
+	    		<tr th:each="datos : ${listaPedidos}">
+	    			<td th:text="${datos.producto.nombre}"/>
+	    			<td th:text="${datos.producto.precio}"/>
+	    			<td th:text="${datos.cantidad}"/>
+	    			<td th:text="${datos.producto.precio*datos.cantidad}"/>
+	    		</tr>
+	    	</tbody>
+	    		    	<tr>
+	    		<th>El porcentaje del IVA es del</th>
+	    		<td>12%</td>
+	    	</tr>
+	    	<tr>
+	    		<th>Precio total</th>
+	    		<td th:text="${total}"></td>
+	    		<th>Precio total mas IVA</th>
+	    		<td th:text="${total*1.12}"></td>
+	    	</tr>
+    	</table>
+    	<h2>Direccion de envio</h2>
+    			<table>
+	    	<thead>
+	    		<tr>
+	    			<th>Direccion</th>
+	    			<th>Telefono</th>
+	    			<th>Fecha actual</th>
+	    			<th>Correo electronico</th>
+	    		</tr>
+	    	</thead>
+			<tbody>
+	    		<tr>
+	    			<td th:text="${direccion.direccion}"/>
+	    			<td th:text="${direccion.telefono}"/>
+	    			<td th:text="${direccion.fechaPack}"/>
+	    			<td th:text="${direccion.correoElectronico}"/>
+	    		</tr>
+
+    	</table>
+		<a th:href="@{/login/select/listaP}"><button class="botonForm">Volver</button></a>
+	</div>
+	</body>
+</html>
