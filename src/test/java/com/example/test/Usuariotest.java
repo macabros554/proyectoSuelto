@@ -19,7 +19,7 @@ class Usuariotest {
 	
 	@Test
 	void test() {
-		assertEquals("ew3", usuario.getDireccion());
+		assertEquals("ew", usuario.getDireccion());
 	}
 	
 
