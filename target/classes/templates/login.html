@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>Login SuperMercado</title>
+		<link href="/estilos.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="divPadre">
+			<form action="#" th:action="@{/login/submit}" 
+			th:object="${usuario}" method="post">
+				<label for="login">Nombre de usuario:</label>
+				<input type="text" name="nombreUsuario" th:field="*{nickName}" required>
+				<br/>
+				<label for="contra">Contraseña:</label>
+				<input type="password" name="contrasenia" th:field="*{contrasenia}" required> 
+				<br>
+				<input type="submit" value="Enviar" class="botonForm">
+			</form>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,36 @@
+@charset "UTF-8";
+html {
+     scroll-behavior: smooth;
+}
+
+body{
+    background-color: #0072c6;
+    text-align: justify;
+    
+}
+
+input {
+	margin-bottom: 1%;
+}
+
+form{
+	padding-top: 1%;
+	padding-left: 10px;
+}
+.botonForm{
+	border-radius: 12px;
+	cursor: pointer;
+	border: none;
+	padding: 10px 20px;
+	border-color: blue;
+	color: #fff;
+	box-shadow: 0 0 40px 40px blue inset, 0 0 0 0 blue;
+	transition: all 150ms ease-in-out;
+}
+.divPadre{
+	border-radius: 12px;
+	border: outset #000000;
+	background-color: #bfbaaf;
+	padding: 1%;
+	
+}
