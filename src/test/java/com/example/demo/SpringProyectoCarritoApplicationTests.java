@@ -25,7 +25,7 @@ Usuario usuario;
 	
 	@Test
 	void test() {
-		assertEquals("ew2", usuario.getDireccion());
+		assertEquals("ew", usuario.getDireccion());
 	}
 
 }
