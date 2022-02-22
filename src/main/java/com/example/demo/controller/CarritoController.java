@@ -52,7 +52,7 @@ public class CarritoController {
 	 * verificamos si existe
 	 * en el caso de que exista guardamos la key en sesion y pasamos a la siguiente pagina
 	 */
-	@PostMapping("/login/submit")
+	@PostMapping("login/submit")
 	@RequestMapping (value="/login/submit", method=RequestMethod.POST)
 	public String logearUsuarioSubmit(@Validated @ModelAttribute("usuario") Usuario intentoDeLogin ) {
 		
