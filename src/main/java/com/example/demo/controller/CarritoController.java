@@ -68,7 +68,7 @@ public class CarritoController {
 	 * tambien le digo que busque el usuario en la base de datos para sacar el nombre del usuario y que aparezca en la pagina
 	 */
 	
-	@GetMapping("/login/select")
+	@GetMapping("login/select")
 	public String seleccionarAccion1(Model model) {
 		model.addAttribute("usuario", servicioUsuario.datosUsuario((String)sesion.getAttribute("usuario1")));
 		return "select";
